@@ -1,0 +1,28 @@
+## beego搭建
+1 建立项目目录helloapp
+2 初始化 go.mod   $ go mod init helloapp 执行的目录是当前建立的helloapp
+3 go get -u github.com/beego/beego/v2 为了安装时候展示到mod
+4 go get -u github.com/beego/bee/v2 为了安装时候展示到mod
+5 bee工具初始化项目
+bee new helloapp
+项目初始构建
+6 bee api helloapp 来开发 API 应用
+7 go mod tidy
+8 bee generate docs
+
+9 在项目目录下使用bee run -gendoc=true -downdoc=true运行项目。第一次运行时会自动下载调试工具swagger
+-gendoc=true 表示每次自动化的 build 文档。当项目文件中controller或者routers目录下有变动时，就需要添加这一句
+
+-downdoc=true 会自动的下载 swagger 文档查看器。仅需要在第一次运行时使用，他会自动下载调试工具swagger
+
+https://blog.csdn.net/qq_34060435/article/details/125189217
+
+##################
+关联远程git
+定位到项目目录下
+git init
+git add README.md
+git commit -m "first commit"
+git remote add origin https://xxx/xx.git
+git push -u origin master
+##################
