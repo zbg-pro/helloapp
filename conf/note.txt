@@ -25,4 +25,9 @@ git add README.md
 git commit -m "first commit"
 git remote add origin https://xxx/xx.git
 git push -u origin master
+
+创建新分支：
+git branch 2.0.1.20120806
+git checkout 分支名
+git push origin 2.0.1.20120806
 ##################

@@ -8,15 +8,20 @@ import (
 	"github.com/beego/beego/v2/core/logs"
 	beego "github.com/beego/beego/v2/server/web"
 	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/shopspring/decimal"
 	. "github.com/smartystreets/goconvey/convey"
 	"helloapp/models"
 	_ "helloapp/routers"
+	"log"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path"
 	"path/filepath"
 	"runtime"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 )
@@ -25,9 +30,16 @@ func init() {
 	_, file, _, _ := runtime.Caller(0)
 	apppath, _ := filepath.Abs(filepath.Dir(filepath.Join(file, ".."+string(filepath.Separator))))
 	beego.TestBeegoInit(apppath)
-	orm.RegisterDriver("mysql", orm.DRMySQL)
+
+	//mysql
+	/*orm.RegisterDriver("mysql", orm.DRMySQL)
 	orm.RegisterDataBase("default", "mysql",
-		"root:iPYDU0o3MRQOreEW@tcp(172.16.100.130:3306)/c2c?charset=utf8")
+		"root:iPYDU0o3MRQOreEW@tcp(172.16.100.130:3306)/c2c?charset=utf8")*/
+
+	//sqlite
+	orm.RegisterDriver("sqlite", orm.DRSqlite)
+	orm.RegisterDataBase("default", "sqlite3", getCurrentAbPath()+"/sqlite3.db")
+
 	orm.Debug = true
 	orm.RegisterModel(new(ActivityBill))
 }
@@ -73,8 +85,11 @@ func TestMysqlConn(t *testing.T) {
 	//https://www.cnblogs.com/qidaii/articles/15633605.html
 
 	o := orm.NewOrm()
+
+	o.Raw("create table user(`id` int(20), `user_name` varchar(100), primary key (`id`) )").Exec()
+	o.Raw("insert into user values(1, \"zl239\");").Exec()
 	var maps []orm.Params
-	num, err := o.Raw("show tables").Values(&maps)
+	num, err := o.Raw("select * from user").Values(&maps)
 	if err == nil {
 		fmt.Println(num)
 		fmt.Println(maps)
@@ -197,9 +212,38 @@ func TestRedis(t *testing.T) {
 
 }
 
-type apikey struct {
-	id       int
-	userId   string
-	userName string
-	ipaddrs  string
+func TestPath(t *testing.T) {
+	fmt.Println(getCurrentAbPath())
+	fmt.Println(getCurrentAbPathByExecutable())
+	fmt.Println(getCurrentAbPathByCaller())
+}
+
+// 最终方案-全兼容
+func getCurrentAbPath() string {
+	dir := getCurrentAbPathByExecutable()
+	tmpDir, _ := filepath.EvalSymlinks(os.TempDir())
+	if strings.Contains(dir, tmpDir) {
+		return getCurrentAbPathByCaller()
+	}
+	return dir
+}
+
+// 获取当前执行文件绝对路径
+func getCurrentAbPathByExecutable() string {
+	exePath, err := os.Executable()
+	if err != nil {
+		log.Fatal(err)
+	}
+	res, _ := filepath.EvalSymlinks(filepath.Dir(exePath))
+	return res
+}
+
+// 获取当前执行文件绝对路径（go run）
+func getCurrentAbPathByCaller() string {
+	var abPath string
+	_, filename, _, ok := runtime.Caller(0)
+	if ok {
+		abPath = path.Dir(filename)
+	}
+	return abPath
 }
