@@ -96,7 +96,7 @@ func TestMysqlConn(t *testing.T) {
 	}
 
 	var list []orm.ParamsList
-	num1, err1 := o.Raw("select * from activity_bill").ValuesList(&list)
+	num1, err1 := o.Raw("select * from user").ValuesList(&list)
 	if err1 == nil && num1 > 0 {
 		fmt.Println(list) // slene
 	}

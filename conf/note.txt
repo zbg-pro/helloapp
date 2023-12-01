@@ -21,6 +21,7 @@ https://blog.csdn.net/qq_34060435/article/details/125189217
 关联远程git
 定位到项目目录下
 git init
+touch README.md
 git add README.md
 git commit -m "first commit"
 git remote add origin https://xxx/xx.git
